@@ -5,13 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class ControlActivity : AppCompatActivity() {
+    private val LOG_TAG = "GATT Client"
+
     private var bleCommandService: BleCommandService? = null
     private var isServiceBinded = false
 
@@ -23,7 +27,10 @@ class ControlActivity : AppCompatActivity() {
             bleCommandService = serviceBinder.getService()
             isServiceBinded = true
             bleDeviceAddress?.let {
-                bleCommandService?.connectBle(it)
+                Handler().postDelayed(Runnable {
+                    Log.i(LOG_TAG, "Connecting...")
+                    bleCommandService?.connectBle(it)
+                }, 1000)
             }
         }
 
