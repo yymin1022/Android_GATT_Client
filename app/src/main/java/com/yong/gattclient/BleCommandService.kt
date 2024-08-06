@@ -10,9 +10,11 @@ import android.bluetooth.BluetoothProfile
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import android.util.Log
 import java.util.UUID
 
 class BleCommandService: Service() {
+    private val LOG_TAG = "GATT Service"
     private val UUID_CHARACTERISTIC = ""
     private val UUID_SERVICE = ""
 
@@ -34,7 +36,7 @@ class BleCommandService: Service() {
 
     fun connectBle(deviceAddr: String): Boolean {
         val bleDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddr)
-        bleGatt = bleDevice.connectGatt(this, false, gattCallback)
+        bleGatt = bleDevice.connectGatt(this, true, gattCallback)
         return true
     }
 
@@ -53,14 +55,18 @@ class BleCommandService: Service() {
     private val gattCallback = object: BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                Log.i(LOG_TAG, "Device Connected")
                 gatt.discoverServices()
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                Log.i(LOG_TAG, "Device Disconnected")
                 bleGatt = null
             }
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+            Log.i(LOG_TAG, "Discovering Service")
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.i(LOG_TAG, "Discovered Service")
                 val service = gatt.getService(UUID.fromString(UUID_SERVICE))
                 val characteristic = service?.getCharacteristic(UUID.fromString(UUID_CHARACTERISTIC))
                 characteristic?.let {
@@ -76,15 +82,11 @@ class BleCommandService: Service() {
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
             val data = characteristic.value?.toString(Charsets.UTF_8)
-            data?.let {
-                val intent = Intent("com.example.ACTION_DATA_AVAILABLE")
-                intent.putExtra("com.example.EXTRA_DATA", it)
-                sendBroadcast(intent)
-            }
+            Log.i(LOG_TAG, "Message Received: [$data]")
         }
     }
 
     companion object {
-        private const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
+        private const val CLIENT_CHARACTERISTIC_CONFIG = ""
     }
 }
