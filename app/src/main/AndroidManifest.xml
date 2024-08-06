@@ -31,7 +31,7 @@
         <activity
             android:name=".ControlActivity"
             android:exported="false" />
-        
+
         <service
             android:name=".BleCommandService"
             android:exported="false" />

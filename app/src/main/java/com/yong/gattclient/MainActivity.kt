@@ -2,6 +2,7 @@ package com.yong.gattclient
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -82,5 +83,9 @@ class MainActivity : AppCompatActivity(), BleScanRecyclerAdapter.OnItemClickList
 
     override fun onItemClick(device: BluetoothDevice) {
         stopBleScan()
+
+        val intent = Intent(applicationContext, ControlActivity::class.java)
+        intent.putExtra("BLE_DEVICE_ADDRESS", device.address)
+        startActivity(intent)
     }
 }
